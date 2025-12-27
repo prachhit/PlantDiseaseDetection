@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Disease Detector</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="navbar">
+            <div class="logo">
+                <i class="fas fa-leaf"></i> Plant Disease Detector
+            </div>
+            <nav>
+                <a href="{% url 'home' %}">Home</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+            </nav>
+        </header>
+
+        <section class="hero-section">
+            <div class="hero-image-overlay">
+                <h2>Protect Your Garden with AI</h2>
+                <p>Upload a leaf image to instantly diagnose potential diseases using our advanced CNN model.</p>
+            </div>
+            
+            <div class="card upload-card">
+                <h3>Select Image</h3>
+                <p class="subtitle">Choose a Leaf Image:</p>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="file-preview-area">
+                        <img id="image-preview" src="{{ MEDIA_URL }}tomato_leaf.jpg" alt="Selected Leaf Image" class="preview-img">
+                    </div>
+                    
+                    <input type="file" name="image_file" id="image_file" accept="image/*" required>
+                    
+                    <button type="submit" id="detect-button" class="btn-primary">
+                        Detect Disease
+                    </button>
+                    
+                    <div id="loading-state" class="loading-state hidden">
+                        <i class="fas fa-spinner fa-spin"></i> Analyzing image... Please wait.
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="how-it-works">
+            <h3>How It Works</h3>
+            <div class="steps-grid">
+                <div class="step-item">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h4>1. Upload Image</h4>
+                    <p>Select a clear image of the affected leaf.</p>
+                </div>
+                <div class="step-item">
+                    <i class="fas fa-search"></i>
+                    <h4>2. AI Analysis</h4>
+                    <p>Our CNN model processes the image.</p>
+                </div>
+                <div class="step-item">
+                    <i class="fas fa-check-circle"></i>
+                    <h4>3. Receive Diagnosis</h4>
+                    <p>Get a detailed report and treatment suggestions.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <p>Powered By: </p>
+        <img src="{% static 'img/django_logo.png' %}" alt="Django" class="tech-logo">
+        <img src="{% static 'img/tensorflow_logo.png' %}" alt="TensorFlow" class="tech-logo">
+        <img src="{% static 'img/python_logo.png' %}" alt="Python" class="tech-logo">
+    </footer>
+
+    <script>
+        document.getElementById('image_file').onchange = function(event) {
+            const [file] = event.target.files;
+            if (file) {
+                document.getElementById('image-preview').src = URL.createObjectURL(file);
+            }
+        };
+
+        document.querySelector('form').onsubmit = function() {
+            document.getElementById('detect-button').style.display = 'none';
+            document.getElementById('loading-state').classList.remove('hidden');
+        };
+    </script>
+</body>
+</html>
