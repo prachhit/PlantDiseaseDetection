@@ -1,0 +1,15 @@
+0 Bacterialblight
+1 Blast
+2 Brownspot
+3 Tungro
+4 Bacterial spot
+5 Black mold
+6 Gray spot
+7 health
+8 Late blight
+9 powdery mildew
+10 Bacterial Leaf Streak
+11 Common_rust
+12 Gray_leaf_spot
+13 Healthy
+14 Maize Chlorotic Mottle Virus

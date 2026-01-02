@@ -23,11 +23,10 @@
 
             <div class="card confidence-card">
                 <h4>Confidence Score</h4>
-                <div class="confidence-gauge">
-                    <div class="gauge-chart">0.00%</div>
-                    <div class="gauge-bar-container">
-                        <div class="gauge-fill" style="width: 0%;"></div>
-                    </div>
+                <div class="score-container">
+    <h2>{{ confidence }}</h2>
+    <div class="progress-bar" style="width: {{ confidence }};"></div>
+</div>
                     <p class="confidence-value">0.00%</p>
                 </div>
             </div>
@@ -37,17 +36,17 @@
             
             <div class="card detail-item">
                 <h4>Plant Info</h4>
-                <div class="info-badges">
-                    <span class="badge plant-name-badge">Plant Name: Unknown</span>
-                    <span class="badge prediction-error-badge">Prediction Type: Error</span>
-                </div>
+               <div class="plant-info">
+    <p class="label-badge">Plant Name: <strong>{{ label }}</strong></p>
+    <p class="status-badge">Prediction Status: <strong>Confirmed</strong></p>
+</div>
                 <i class="fas fa-leaf leaf-icon"></i>
             </div>
 
             <div class="card detail-item">
                 <h4>Analysis Details</h4>
                 <img src="{{ image_url }}" alt="Uploaded Leaf Image" class="uploaded-image">
-                <p class="analysis-note">No disease detected due to model error.</p>
+                <p>{{ description }}</p>
             </div>
 
             <div class="card detail-item treatment-info-card">

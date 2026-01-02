@@ -1,8 +1,8 @@
-# detector/models.py
-# ... (Keep DiseasePrediction class)
 from django.db import models
+from django.contrib.auth.models import User
 
 class DiseaseInfo(models.Model):
+    """Detailed info for the Results page, managed via Admin."""
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
     symptoms = models.TextField()
@@ -12,15 +12,13 @@ class DiseaseInfo(models.Model):
     def __str__(self):
         return self.name
 
-    class Meta:
-        verbose_name_plural = "Disease Information"
-
-
 class DiseasePrediction(models.Model):
-    image = models.ImageField(upload_to='uploads/')
+    """Logs every scan made by a user."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    image = models.ImageField(upload_to='prediction_logs/')
     predicted_class = models.CharField(max_length=100)
     confidence = models.FloatField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.predicted_class} ({self.confidence:.2f}) at {self.timestamp}"
+        return f"{self.predicted_class} - {self.date.strftime('%Y-%m-%d')}"
