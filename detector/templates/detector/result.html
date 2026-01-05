@@ -4,82 +4,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plant Disease Detector Result</title>
+    <title>PlantAI - Disease Analysis Result</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2e8b57;        /* Sea green */
+            --secondary: #98fb98;      /* Pale green */
+            --light-bg: #f0fff0;       /* Honeydew mint */
+            --card-bg: #ffffff;
+            --success: #32cd32;        /* Lime green */
+            --danger: #ff6347;         /* Tomato red for disease */
+            --text: #155724;           /* Dark green text */
+            --shadow: 0 20px 50px rgba(46, 139, 87, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #d0f5e0 0%, #e8f8f0 100%);
+            margin: 0;
+            padding: 30px 0;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .hero {
+            position: relative;
+            height: 650px;
+        }
+
+        .hero-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.85);
+        }
+
+        .hero-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(46, 139, 87, 0.85));
+            padding: 100px 50px 50px;
+            color: white;
+            text-align: center;
+        }
+
+        .hero-overlay h1 {
+            font-size: 4.5rem;
+            margin: 0 0 30px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .health-badge {
+            font-size: 1.8rem;
+            padding: 18px 45px;
+            border-radius: 60px;
+            display: inline-block;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .healthy { background: var(--success); }
+        .diseased { background: var(--danger); }
+
+        .content {
+            padding: 60px 50px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 28px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(50, 205, 50, 0.2);
+            box-shadow: 0 10px 30px rgba(46, 139, 87, 0.1);
+            transition: 0.4s;
+        }
+
+        .card:hover { transform: translateY(-10px); }
+
+        .confidence-svg {
+            width: 280px;
+            height: 280px;
+            margin: 40px auto;
+        }
+
+        .circle-bg { fill: none; stroke: #98fb98; stroke-width: 18; }
+        .circle-fg { fill: none; stroke: url(#grad); stroke-width: 18; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 1.5s ease; }
+        .confidence-num { font-size: 3.8rem; font-weight: 800; fill: var(--primary); }
+
+        .accordion {
+            background: var(--card-bg);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(46, 139, 87, 0.1);
+        }
+
+        .acc-header {
+            background: linear-gradient(to right, var(--light-bg), #e0ffe0);
+            padding: 28px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: var(--primary);
+            transition: 0.3s;
+        }
+
+        .acc-header:hover { background: linear-gradient(to right, #c0ffc0, #e0ffe0); }
+
+        .acc-header i { transition: transform 0.4s; color: var(--secondary); font-size: 1.4rem; }
+
+        .acc-content {
+            padding: 40px;
+            display: none;
+            line-height: 2;
+            font-size: 1.2rem;
+            background: #f8fff8;
+        }
+
+        .active .acc-content { display: block; }
+        .active i { transform: rotate(180deg); }
+
+        .actions { text-align: center; margin: 60px 0; }
+
+        .btn {
+            padding: 20px 50px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.3rem;
+            text-decoration: none;
+            display: inline-block;
+            margin: 20px;
+            transition: all 0.4s;
+            box-shadow: 0 12px 30px rgba(46, 139, 87, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(46, 139, 87, 0.3); }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 3px solid var(--secondary);
+        }
+
+        .btn-secondary:hover { background: var(--light-bg); }
+
+        .disclaimer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            font-size: 1.1rem;
+            color: #2e8b57;
+            background: rgba(240, 255, 240, 0.7);
+            border-radius: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .hero { height: 500px; }
+            .hero-overlay { padding: 80px 30px 40px; }
+            .hero-overlay h1 { font-size: 3.2rem; }
+            .confidence-svg { width: 220px; height: 220px; }
+            .card { padding: 30px; }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header class="result-header">
-            <h2>Plant Disease Detector Result</h2>
-            <p>Based on Plant Disease Detector Result</p>
-        </header>
-
-        <div class="result-row top-summary-row">
-            <div class="card diagnosis-card error-state">
-                <h4>Diagnosis Card</h4>
-                <h1>Diagnosis: Model Not Loaded</h1>
-            </div>
-
-            <div class="card confidence-card">
-                <h4>Confidence Score</h4>
-                <div class="score-container">
-    <h2>{{ confidence }}</h2>
-    <div class="progress-bar" style="width: {{ confidence }};"></div>
-</div>
-                    <p class="confidence-value">0.00%</p>
-                </div>
+        <div class="hero">
+            <img src="{{ image_url }}" alt="Analyzed Leaf" class="hero-img">
+            <div class="hero-overlay">
+                <h1>{{ label|title }}</h1>
+                <span class="health-badge {% if 'healthy' in label|lower %}healthy{% else %}diseased{% endif %}">
+                    {% if 'healthy' in label|lower %}Healthy Plant{% else %}Disease Detected{% endif %}
+                </span>
             </div>
         </div>
 
-        <div class="result-row detail-row">
-            
-            <div class="card detail-item">
-                <h4>Plant Info</h4>
-               <div class="plant-info">
-    <p class="label-badge">Plant Name: <strong>{{ label }}</strong></p>
-    <p class="status-badge">Prediction Status: <strong>Confirmed</strong></p>
-</div>
-                <i class="fas fa-leaf leaf-icon"></i>
-            </div>
-
-            <div class="card detail-item">
-                <h4>Analysis Details</h4>
-                <img src="{{ image_url }}" alt="Uploaded Leaf Image" class="uploaded-image">
-                <p>{{ description }}</p>
-            </div>
-
-            <div class="card detail-item treatment-info-card">
-                <h4>Treatment/Info</h4>
-                <div class="accordion-item">
-                    <p class="accordion-header">Description <i class="fas fa-chevron-down"></i></p>
-                    <div class="accordion-content">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed diam nonumy.</p>
-                    </div>
+        <div class="content">
+            <div class="grid">
+                <div class="card">
+                    <h3>Confidence Level</h3>
+                    <svg class="confidence-svg" viewBox="0 0 280 280">
+                        <defs>
+                            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#2e8b57"/>
+                                <stop offset="100%" stop-color="#98fb98"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="circle-bg" cx="140" cy="140" r="120"/>
+                        <circle class="circle-fg" cx="140" cy="140" r="120"
+                                stroke-dasharray="754"
+                                stroke-dashoffset="{{ dash_offset }}"/>
+                        <text x="140" y="150" text-anchor="middle" class="confidence-num">{{ confidence|floatformat:0 }}%</text>
+                    </svg>
+                    <p style="font-size:1.2rem;">Our AI confidence in this diagnosis</p>
                 </div>
-                <div class="accordion-item">
-                    <p class="accordion-header">Symptoms <i class="fas fa-chevron-down"></i></p>
-                    <div class="accordion-content">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed diam nonumy.</p>
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <p class="accordion-header">Treatment/Prevention <i class="fas fa-chevron-down"></i></p>
-                    <div class="accordion-content">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed diam nonumy.</p>
-                    </div>
+
+                <div class="card">
+                    <h3>Quick Summary</h3>
+                    <p style="font-size:1.3rem; line-height:2;">
+                        {{ description|default:"We've carefully analyzed your leaf photo. Here's what we found and how you can help your plant." }}
+                    </p>
                 </div>
             </div>
 
-            <div class="card detail-item action-card">
-                <h4>Actions</h4>
-                <a href="{% url 'home' %}" class="btn-primary analyze-btn">Analyze Another Image</a>
-                <a href="#" class="btn-secondary report-btn">Export Report (PDF/Print)</a>
+            <div class="accordion">
+                <div class="acc-item active">
+                    <div class="acc-header">Detailed Description <i class="fas fa-chevron-down"></i></div>
+                    <div class="acc-content">
+                        <p>{{ description|default:"This condition is common in plants and usually responds well to simple care changes." }}</p>
+                    </div>
+                </div>
+                <div class="acc-item active">
+                    <div class="acc-header">Symptoms to Watch <i class="fas fa-chevron-down"></i></div>
+                    <div class="acc-content">
+                        <p>{{ symptoms|default:"You may notice spots, discoloration, curling leaves, or changes in texture." }}</p>
+                    </div>
+                </div>
+                <div class="acc-item active">
+                    <div class="acc-header">Treatment & Prevention <i class="fas fa-chevron-down"></i></div>
+                    <div class="acc-content">
+                        <p>{{ treatment|default:"Remove affected leaves, use neem oil, improve airflow, and avoid overwatering. Most plants recover quickly!" }}</p>
+                    </div>
+                </div>
             </div>
+
+            <div class="actions">
+                <a href="{% url 'home' %}" class="btn btn-primary">Scan Another Plant</a>
+                <a href="#" class="btn btn-secondary">Download Report</a>
+            </div>
+
+            <p class="disclaimer">
+                AI-based prediction for reference only. Always consult local experts for critical cases.
+            </p>
         </div>
-
-        <p class="data-disclaimer">Data integrity disclaimer: Predictions are based on available models and may not be 100% accurate.</p>
     </div>
 
-    </body>
+    <script>
+        document.querySelectorAll('.acc-header').forEach(h => {
+            h.addEventListener('click', () => h.parentElement.classList.toggle('active'));
+        });
+    </script>
+</body>
 </html>

@@ -1,0 +1,56 @@
+<nav class="navbar">
+    <div class="logo">
+        <i class="fas fa-leaf"></i> Plant<span style="color: var(--accent-green);">AI</span>
+    </div>
+    <nav>
+        <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
+        <a href="#"><i class="fas fa-info-circle"></i> About</a>
+        <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+    </nav>
+</nav>
+
+<style>
+    /* This ensures the navbar looks perfect even if included in different pages */
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 40px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        margin-bottom: 30px;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-glass);
+    }
+
+    .logo {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--light-green);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .navbar nav a {
+        color: var(--text-light);
+        text-decoration: none;
+        margin-left: 25px;
+        font-weight: 500;
+        font-size: 1rem;
+        opacity: 0.8;
+        transition: 0.3s;
+    }
+
+    .navbar nav a i {
+        margin-right: 5px;
+        font-size: 0.9rem;
+    }
+
+    .navbar nav a:hover {
+        color: var(--accent-green);
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+    }
+</style>

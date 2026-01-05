@@ -55,7 +55,8 @@ ROOT_URLCONF = 'PlantD_Core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        # ADD THIS LINE BELOW 👇
+        'DIRS': [BASE_DIR / 'templates'], 
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

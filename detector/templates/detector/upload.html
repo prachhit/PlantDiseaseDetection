@@ -4,94 +4,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plant Disease Detector</title>
+    <title>PlantAI - Smart Disease Detector</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a1f17;
+            --glass-bg: rgba(15, 40, 30, 0.7);
+            --glass-border: rgba(80, 200, 120, 0.25);
+            --accent-green: #4ade80;
+            --light-green: #86efac;
+            --text-light: #e0f5e8;
+            --shadow-glass: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-image: url('{% static "img/dark-leaf-bg.jpg" %}');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        .container { max-width: 1300px; margin: 0 auto; padding: 30px 20px; }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 50px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            margin-bottom: 60px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-glass);
+        }
+
+        .logo { font-size: 2.5rem; font-weight: 800; color: var(--light-green); }
+
+        .navbar nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            margin-left: 40px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            padding: 12px 24px;
+            border-radius: 30px;
+            transition: 0.4s;
+        }
+
+        .navbar nav a:hover { background: rgba(74, 222, 128, 0.3); color: var(--accent-green); }
+
+        .hero-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 80px 20px 100px;
+        }
+
+        .hero-title {
+            font-size: 4.5rem;
+            margin-bottom: 25px;
+            background: linear-gradient(to right, var(--light-green), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .hero-subtitle {
+            font-size: 1.6rem;
+            opacity: 0.95;
+            margin-bottom: 80px;
+            max-width: 800px;
+            line-height: 1.8;
+        }
+
+        .upload-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border-radius: 40px;
+            padding: 60px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-glass);
+            transition: 0.5s;
+        }
+
+        .upload-card:hover { transform: translateY(-15px); }
+
+        .preview-area {
+            height: 380px;
+            border: 4px dashed var(--light-green);
+            border-radius: 32px;
+            overflow: hidden;
+            margin-bottom: 40px;
+            background: rgba(74, 222, 128, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.5s;
+            position: relative;
+        }
+
+        .preview-area:hover {
+            border-color: var(--accent-green);
+            background: rgba(74, 222, 128, 0.25);
+            box-shadow: 0 0 30px rgba(74, 222, 128, 0.3);
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 24px;
+        }
+
+        .upload-instruction {
+            position: absolute;
+            color: var(--light-green);
+            font-size: 1.4rem;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(45deg, #22c55e, var(--accent-green));
+            color: white;
+            padding: 22px 50px;
+            border: none;
+            border-radius: 60px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 15px 35px rgba(74, 222, 128, 0.4);
+            transition: 0.5s;
+            margin-bottom: 20px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(74, 222, 128, 0.6);
+        }
+
+        .loading {
+            margin-top: 30px;
+            font-size: 1.3rem;
+            opacity: 0;
+            transition: opacity 0.5s;
+            color: var(--light-green);
+        }
+
+        .how-section {
+            padding: 120px 20px;
+            text-align: center;
+        }
+
+        .how-title {
+            font-size: 3.2rem;
+            margin-bottom: 80px;
+            background: linear-gradient(to right, var(--light-green), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 50px;
+        }
+
+        .step-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            border-radius: 36px;
+            padding: 50px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-glass);
+            transition: 0.5s;
+        }
+
+        .step-card:hover {
+            transform: translateY(-20px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .step-icon {
+            font-size: 5rem;
+            color: var(--accent-green);
+            margin-bottom: 30px;
+        }
+
+        .step-card h3 {
+            font-size: 1.8rem;
+            color: var(--light-green);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .step-card p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 3.2rem; }
+            .hero-subtitle { font-size: 1.4rem; }
+            .upload-card { padding: 50px 30px; }
+            .preview-area { height: 300px; }
+            .upload-btn { font-size: 1.3rem; padding: 20px; }
+            .how-title { font-size: 2.6rem; }
+            .step-card { padding: 40px 25px; }
+            .step-icon { font-size: 4rem; }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header class="navbar">
-            <div class="logo">
-                <i class="fas fa-leaf"></i> Plant Disease Detector
-            </div>
+        <nav class="navbar">
+            <div class="logo"><i class="fas fa-leaf"></i> PlantAI</div>
             <nav>
                 <a href="{% url 'home' %}">Home</a>
                 <a href="#">About</a>
                 <a href="#">Contact</a>
             </nav>
-        </header>
+        </nav>
 
-        <section class="hero-section">
-            <div class="hero-image-overlay">
-                <h2>Protect Your Garden with AI</h2>
-                <p>Upload a leaf image to instantly diagnose potential diseases using our advanced CNN model.</p>
-            </div>
-            
-            <div class="card upload-card">
-                <h3>Select Image</h3>
-                <p class="subtitle">Choose a Leaf Image:</p>
-                
-                <form method="post" enctype="multipart/form-data">
+        <section class="hero-upload">
+            <h1 class="hero-title">Keep Your Plants Healthy</h1>
+            <p class="hero-subtitle">
+                Take a photo of any leaf showing problems. Our AI will quickly check for diseases and give you clear advice on how to help your plant feel better.
+            </p>
+
+            <div class="upload-card">
+                {% if error %}
+    <div class="error-alert" style="background: rgba(255, 99, 71, 0.2); border: 1px solid #ff6347; color: #ff6347; padding: 15px; border-radius: 20px; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{{ error }}</span>
+    </div>
+    {% endif %}
+                <form method="post" enctype="multipart/form-data" id="upload-form">
                     {% csrf_token %}
-                    
-                    <div class="file-preview-area">
-                        <img id="image-preview" src="{{ MEDIA_URL }}tomato_leaf.jpg" alt="Selected Leaf Image" class="preview-img">
+                    <div class="preview-area">
+                        <img id="preview" src="{% static 'img/placeholder-plant-dark.png' %}" alt="Upload your leaf photo" class="preview-img">
+                        <div class="upload-instruction">Click below to upload a photo</div>
                     </div>
-                    
-                    <input type="file" name="image_file" id="image_file" accept="image/*" required>
-                    
-                    <button type="submit" id="detect-button" class="btn-primary">
-                        Detect Disease
+                    <input type="file" name="image_file" id="file-input" accept="image/*" required style="display:none;">
+                    <button type="button" onclick="document.getElementById('file-input').click()" class="upload-btn">
+                        <i class="fas fa-camera" style="margin-right:15px;"></i> Choose Leaf Photo
                     </button>
-                    
-                    <div id="loading-state" class="loading-state hidden">
-                        <i class="fas fa-spinner fa-spin"></i> Analyzing image... Please wait.
+                    <button type="submit" class="upload-btn" id="detect-btn">
+                        <i class="fas fa-search" style="margin-right:15px;"></i> Check for Disease
+                    </button>
+                    <div class="loading" id="loading">
+                        <i class="fas fa-spinner fa-spin" style="margin-right:12px;"></i>
+                        Analyzing your plant... This usually takes a few seconds
                     </div>
                 </form>
             </div>
         </section>
 
-        <section class="how-it-works">
-            <h3>How It Works</h3>
-            <div class="steps-grid">
-                <div class="step-item">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <h4>1. Upload Image</h4>
-                    <p>Select a clear image of the affected leaf.</p>
+        <section class="how-section">
+            <h2 class="how-title">How It Works</h2>
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-icon"><i class="fas fa-camera"></i></div>
+                    <h3>1. Take a Clear Photo</h3>
+                    <p>Hold your phone close to the leaf. Good lighting helps us see better!</p>
                 </div>
-                <div class="step-item">
-                    <i class="fas fa-search"></i>
-                    <h4>2. AI Analysis</h4>
-                    <p>Our CNN model processes the image.</p>
+                <div class="step-card">
+                    <div class="step-icon"><i class="fas fa-brain"></i></div>
+                    <h3>2. AI Checks the Leaf</h3>
+                    <p>Our smart system looks for signs of common plant problems</p>
                 </div>
-                <div class="step-item">
-                    <i class="fas fa-check-circle"></i>
-                    <h4>3. Receive Diagnosis</h4>
-                    <p>Get a detailed report and treatment suggestions.</p>
+                <div class="step-card">
+                    <div class="step-icon"><i class="fas fa-heart"></i></div>
+                    <h3>3. Get Simple Advice</h3>
+                    <p>We tell you what's wrong and how to fix it in easy steps</p>
                 </div>
             </div>
         </section>
     </div>
 
-    <footer class="footer">
-        <p>Powered By: </p>
-        <img src="{% static 'img/django_logo.png' %}" alt="Django" class="tech-logo">
-        <img src="{% static 'img/tensorflow_logo.png' %}" alt="TensorFlow" class="tech-logo">
-        <img src="{% static 'img/python_logo.png' %}" alt="Python" class="tech-logo">
-    </footer>
-
     <script>
-        document.getElementById('image_file').onchange = function(event) {
-            const [file] = event.target.files;
-            if (file) {
-                document.getElementById('image-preview').src = URL.createObjectURL(file);
-            }
-        };
+        const input = document.getElementById('file-input');
+        const preview = document.getElementById('preview');
+        const instruction = document.querySelector('.upload-instruction');
+        const loading = document.getElementById('loading');
+        const detectBtn = document.getElementById('detect-btn');
 
-        document.querySelector('form').onsubmit = function() {
-            document.getElementById('detect-button').style.display = 'none';
-            document.getElementById('loading-state').classList.remove('hidden');
-        };
+        input.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                preview.src = URL.createObjectURL(e.target.files[0]);
+                instruction.style.display = 'none';
+            }
+        });
+
+        document.getElementById('upload-form').addEventListener('submit', () => {
+            detectBtn.style.display = 'none';
+            loading.style.opacity = '1';
+        });
     </script>
 </body>
 </html>
