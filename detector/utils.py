@@ -22,9 +22,12 @@ DISEASE_INFO = {
     "Maize Chlorotic Mottle Virus": {"description": "Severe viral disease.", "symptoms": "Yellowing and mottling.", "treatment": "Remove infected plants."}
 }
 
-def is_mostly_green(image):
-    """Checks if the image has enough green pixels to likely be a leaf."""
-    # Convert to HSV (Hue, Saturation, Value) for better color detection
+def is_valid_plant_image(image):
+    """
+    Analyzes the image to see if it contains enough green/organic 
+    color to be a plant leaf.
+    """
+    # Convert to HSV which is better for color isolation
     hsv_img = image.convert('HSV')
     np_img = np.array(hsv_img)
     
@@ -32,28 +35,30 @@ def is_mostly_green(image):
     s = np_img[:, :, 1] # Saturation
     v = np_img[:, :, 2] # Value
     
-    # Define green range (Hue roughly 35-95, with minimum saturation/brightness)
-    green_mask = (h > 30) & (h < 100) & (s > 30) & (v > 30)
+    # 1. Define the Green Range (Hue: 30-90 is generally green)
+    # 2. Check Saturation (Plants are vibrant, charts are dull/grey)
+    green_mask = (h > 35) & (h < 95) & (s > 40) & (v > 30)
+    
     green_count = np.sum(green_mask)
     total_pixels = green_mask.size
     green_ratio = green_count / total_pixels
     
-    return green_ratio > 0.15  # Returns True if at least 15% of the image is green
+    # If the image is less than 15% green, it's likely not a leaf
+    return green_ratio > 0.15
 
 def predict_image(image_path):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(BASE_DIR, 'ml_models', 'saved_model_folder')
     label_path = os.path.join(BASE_DIR, 'ml_models', 'labels.txt')
 
-    # 1. Open and check color FIRST
-    image = Image.open(image_path).convert("RGB")
+    # 1. Open image and check color FIRST
+    original_image = Image.open(image_path).convert("RGB")
     
-    # --- ADDED COLOR FILTER ---
-    if not is_mostly_green(image):
+    if not is_valid_plant_image(original_image):
         return {
             "label": "NON_PLANT", 
             "confidence": "0.00",
-            "description": "The image does not contain enough green to be identified as a leaf.",
+            "description": "Invalid Image",
             "symptoms": "N/A",
             "treatment": "N/A"
         }
@@ -65,9 +70,9 @@ def predict_image(image_path):
     with open(label_path, "r") as f:
         class_names = [line.strip() for line in f.readlines()]
 
-    # 3. Image Processing
-    processed_image = ImageOps.fit(image, (224, 224), Image.Resampling.LANCZOS)
-    img_array = (np.asarray(processed_image).astype(np.float32) / 127.5) - 1
+    # 3. Process for AI
+    image = ImageOps.fit(original_image, (224, 224), Image.Resampling.LANCZOS)
+    img_array = (np.asarray(image).astype(np.float32) / 127.5) - 1
     input_tensor = tf.convert_to_tensor(np.expand_dims(img_array, axis=0))
 
     # 4. Prediction
@@ -80,19 +85,9 @@ def predict_image(image_path):
     clean_label = raw_label.split(' ', 1)[-1].strip()
     confidence = float(prediction[index])
 
-    # 5. STRICT AI FILTER
-    sorted_scores = np.sort(prediction)[::-1]
-    margin = sorted_scores[0] - sorted_scores[1]
-
-    # If the AI is not confident OR the top two guesses are too close
-    if confidence < 0.85 or margin < 0.20:
-        return {
-            "label": "NON_PLANT", 
-            "confidence": "0.00",
-            "description": "AI is unsure. This might not be a plant.",
-            "symptoms": "N/A",
-            "treatment": "N/A"
-        }
+    # 5. Final AI Guard - Even if it's green, the AI must be sure
+    if confidence < 0.85:
+        return {"label": "NON_PLANT", "confidence": "0.00"}
 
     info = DISEASE_INFO.get(clean_label, {
         "description": "Detected plant.", "symptoms": "N/A", "treatment": "N/A"
